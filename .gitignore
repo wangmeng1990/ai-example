@@ -1,0 +1,40 @@
+### gradle ###
+.gradle
+
+###
+*.flattened-pom.xml
+
+### STS ###
+.settings/
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+bin/
+
+### IntelliJ IDEA ###
+*.idea
+*.iml
+rebel.xml
+
+target/
+/target/
+*.lst
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/.idea/

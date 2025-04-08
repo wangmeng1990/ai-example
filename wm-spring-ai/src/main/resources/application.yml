@@ -1,0 +1,10 @@
+spring:
+  profiles:
+    active: qw
+    application:
+      name: wm-spring-ai
+
+server:
+  port: 8001
+  servlet:
+    context-path: /ai
