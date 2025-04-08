@@ -4,6 +4,16 @@
 ###
 *.flattened-pom.xml
 
+### IntelliJ IDEA ###
+*.idea
+/.idea/
+*.iml
+rebel.xml
+
+target/
+/target/
+*.lst
+
 ### STS ###
 .settings/
 .apt_generated
@@ -14,14 +24,6 @@
 .springBeans
 bin/
 
-### IntelliJ IDEA ###
-*.idea
-*.iml
-rebel.xml
-
-target/
-/target/
-*.lst
 
 
 
@@ -37,4 +39,7 @@ target/
 
 
 
-/.idea/
+
+
+
+
