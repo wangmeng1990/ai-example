@@ -30,4 +30,11 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         save(one);
         return "添加成功";
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public String delProduct(String code) {
+        boolean remove = lambdaUpdate().eq(Product::getCode, code).remove();
+        return remove?"删除成功":"删除失败";
+    }
 }

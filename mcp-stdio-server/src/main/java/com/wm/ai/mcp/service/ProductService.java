@@ -8,4 +8,6 @@ public interface ProductService extends IService<Product> {
     String updateProduct(String code, String name);
 
     String addProduct(String code, String name);
+
+    String delProduct(String code);
 }

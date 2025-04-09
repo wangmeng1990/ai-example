@@ -385,16 +385,22 @@ public class ChatService {
                 你是一个负责产品管理的智能体，功能如下：
                 -----------------
                 1. 负责产品的增删改查
-                2. 负责产品查询和推荐
+                2. 负责产品查询
+                3. 分析客户询问意图，推荐相关产品
                 -----------------
                 
-                需要调用工具时，你必须要求用户提供工具需要的参数，不要暴漏参数编码
+                所有工具不要暴漏参数编码
+               
+                用户删除产品时，需要用户提供产品编码，并确保和用户确认后才能执行删除
+                当需要调用[修改产品，新增产品的]的工具时,要求客户提供工具要求的必录参数
+                
                 如果用户问题与你负责的功能不相关，请不要做出回答
                 """;
         return chatClient.prompt()
             .system(sysTxt)
             .user(request.userInput())
             .tools(toolCallbackProvider)
+            .advisors(new MessageChatMemoryAdvisor(inMemoryChatMemory, request.sessionId(), 50))
             .stream().content().collect(Collectors.joining())
             .onErrorResume(e -> {
                 System.err.println("Error occurred during chat: " + e.getMessage());

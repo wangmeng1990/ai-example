@@ -30,15 +30,20 @@ public class ToolsService {
     }
 
     @Tool(description = "修改产品名称")
-    public String updateProduct(@ToolParam(description = "产品编码") String code,
-                                @ToolParam(description = "产品名称") String name) {
+    public String updateProduct(@ToolParam(description = "产品编码",required = true) String code,
+                                @ToolParam(description = "产品名称",required = true) String name) {
 
         return productService.updateProduct(code,name);
     }
 
     @Tool(description = "新增产品")
-    public String addProduct(@ToolParam(description = "产品编码") String code,
-                                @ToolParam(description = "产品名称") String name) {
+    public String addProduct(@ToolParam(description = "产品编码",required = true) String code,
+                                @ToolParam(description = "产品名称",required = true) String name) {
         return productService.addProduct(code,name);
+    }
+
+    @Tool(description = "删除产品")
+    public String delProduct(@ToolParam(description = "产品编码",required = true) String code) {
+        return productService.delProduct(code);
     }
 }
