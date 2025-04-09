@@ -7,6 +7,28 @@ spring:
       server:
         stdio: true
         name: mcp-date-server
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/base_ai?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&useSSL=false&allow
+    username: root
+    password: 123456
+
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*Mapper.xml
+  typeHandlersPackage: com.nh.micro.ext.th
+  configuration:
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
+    # 开启mybatis驼峰式命名规则自动转换
+    map-underscore-to-camel-case: true
+  global-config:
+    banner: false
+    db-config:
+      # 全局逻辑删除配置
+      logic-delete-field: isDeleted
+      logic-delete-value: true
+      logic-not-delete-value: false
+
 logging:
   pattern:
     console:
