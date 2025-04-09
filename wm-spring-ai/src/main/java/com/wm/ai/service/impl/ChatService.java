@@ -381,7 +381,18 @@ public class ChatService {
      * @return
      */
     public Mono<String> chat14(ChatController.ChatRequest request) {
+        String sysTxt="""
+                你是一个负责产品管理的智能体，功能如下：
+                -----------------
+                1. 负责产品的增删改查
+                2. 负责产品查询和推荐
+                -----------------
+                
+                需要调用工具时，你必须要求用户提供工具需要的参数，不要暴漏参数编码
+                如果用户问题与你负责的功能不相关，请不要做出回答
+                """;
         return chatClient.prompt()
+            .system(sysTxt)
             .user(request.userInput())
             .tools(toolCallbackProvider)
             .stream().content().collect(Collectors.joining())
