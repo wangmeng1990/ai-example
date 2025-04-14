@@ -9,6 +9,7 @@ import com.wm.ai.conf.MessageChatMemory;
 import com.wm.ai.controller.ChatController;
 import com.wm.ai.functioncall.CpuFunction;
 import com.wm.ai.functioncall.DocumentReaderFunction;
+import com.wm.ai.tools.DocumentTools;
 import com.wm.ai.util.ClassUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,6 +20,7 @@ import org.springframework.ai.chat.memory.InMemoryChatMemory;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.image.ImageModel;
+import org.springframework.ai.model.function.FunctionCallback;
 import org.springframework.ai.rag.preretrieval.query.expansion.MultiQueryExpander;
 import org.springframework.ai.rag.preretrieval.query.expansion.QueryExpander;
 import org.springframework.ai.rag.preretrieval.query.transformation.QueryTransformer;
@@ -26,6 +28,7 @@ import org.springframework.ai.rag.preretrieval.query.transformation.RewriteQuery
 import org.springframework.ai.rag.retrieval.search.DocumentRetriever;
 import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.tool.ToolCallbackProvider;
+import org.springframework.ai.tool.ToolCallbacks;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -399,6 +402,38 @@ public class ChatService {
         return chatClient.prompt()
             .system(sysTxt)
             .user(request.userInput())
+            .tools(toolCallbackProvider)
+            .advisors(new MessageChatMemoryAdvisor(inMemoryChatMemory, request.sessionId(), 50))
+            .stream().content().collect(Collectors.joining())
+            .onErrorResume(e -> {
+                System.err.println("Error occurred during chat: " + e.getMessage());
+                return Mono.just("Error: " + e.getMessage());
+            });
+    }
+
+    public Mono<String> chat15(ChatController.ChatRequest request) {
+        String sysTxt="""
+                你是一个负责产品管理和读取文档的智能体，功能如下：
+                -----------------
+                1. 负责产品的增删改查
+                2. 负责产品查询
+                3. 分析客户询问意图，推荐相关产品
+                4. 读取本地文档
+                -----------------
+                
+                所有工具不要暴漏参数编码
+               
+                用户删除产品时，需要用户提供产品编码，并确保和用户确认后才能执行删除
+                当需要调用[修改产品，新增产品的]的工具时,要求客户提供工具要求的必录参数
+                当用户需要查询产品时，你只能提供工具返回的产品
+                当用户需要读取文件的内容时，请调用读取文件内容工具
+                
+                如果用户问题与你负责的功能不相关，请不要做出回答
+                """;
+        return chatClient.prompt()
+            .system(sysTxt)
+            .user(request.userInput())
+            .tools(new DocumentTools(documentService))
             .tools(toolCallbackProvider)
             .advisors(new MessageChatMemoryAdvisor(inMemoryChatMemory, request.sessionId(), 50))
             .stream().content().collect(Collectors.joining())

@@ -131,6 +131,16 @@ public class ChatController {
         return chatService.chat14(request);
     }
 
+    /**
+     * 结构化输出-entity
+     * @param request
+     * @return
+     */
+    @PostMapping(value = "/chat15")
+    public Mono<String> chat15(@RequestBody ChatRequest request ) {
+        return chatService.chat15(request);
+    }
+
     public record ChatRequest(String sessionId, String userInput, String followMessage) {
     }
 
