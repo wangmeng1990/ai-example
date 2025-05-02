@@ -20,7 +20,9 @@ spring:
       rerank:
         options:
           model: gte-rerank
-#          topN: 5
+          #          topN: 5
+      workspace-id: ${DASHSCOPE_WORKSPACEID}
+
 
     vectorstore:
       redis:
