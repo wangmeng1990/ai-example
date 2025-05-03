@@ -2,7 +2,7 @@ package com.wm.ai.common;
 
 import com.wm.ai.exception.BusinessException;
 import com.wm.ai.exception.ErrorCode;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -14,7 +14,7 @@ public class WebResponse<T> {
 
     private Result result = new Result();
 
-    @ApiModelProperty("返回数据内容")
+    @Schema(description = "返回数据内容")
     private T data;
 
 
@@ -74,10 +74,10 @@ public class WebResponse<T> {
 
     @Data
     public static class Result implements Serializable {
-        @ApiModelProperty("返回代码")
+        @Schema(description = "返回代码")
         private Integer code;
 
-        @ApiModelProperty("错误消息")
+        @Schema(description = "错误消息")
         private String message;
 
         private Map<String, String> messageParams;

@@ -1,12 +1,12 @@
 package com.wm.ai.controller;
 
 import com.wm.ai.service.impl.EmbeddingService;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-@Api("ai-embedding")
+@Tag(name = "ai-embedding")
 @RestController
 @RequestMapping("/embedding")
 public class EmbeddingController {

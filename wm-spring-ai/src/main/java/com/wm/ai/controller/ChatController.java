@@ -1,7 +1,7 @@
 package com.wm.ai.controller;
 
 import com.wm.ai.service.impl.ChatService;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@Api("ai-chat")
+@Tag(name = "ai-chat")
 @RestController
 @RequestMapping("/chat")
 public class ChatController {

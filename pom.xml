@@ -21,6 +21,7 @@
         <module>wm-spring-ai</module>
         <module>mcp-stdio-server</module>
         <module>mcp-stdio-client</module>
+        <module>ollama-ai</module>
     </modules>
 
     <dependencyManagement>
@@ -59,6 +60,38 @@
                 <version>1.18.22</version>
                 <scope>provided</scope>
             </dependency>
+
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-all</artifactId>
+                <version>5.8.25</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version> 2.0.53</version>
+            </dependency>
+
+            <!-- 目前和springBoot3存在兼容性问题           -->
+            <dependency>
+                <groupId>com.github.xiaoymin</groupId>
+                <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+                <version>4.4.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>8.0.28</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.pagehelper</groupId>
+                <artifactId>pagehelper</artifactId>
+                <version> 5.3.1</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

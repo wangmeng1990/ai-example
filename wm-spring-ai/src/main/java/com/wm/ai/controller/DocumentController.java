@@ -1,7 +1,7 @@
 package com.wm.ai.controller;
 
 import com.wm.ai.service.impl.DocumentService;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.ai.document.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-@Api("ai-document")
+@Tag(name = "ai-document")
 @RestController
 @RequestMapping("/document")
 public class DocumentController {

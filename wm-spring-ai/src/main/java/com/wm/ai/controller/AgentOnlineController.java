@@ -2,13 +2,11 @@ package com.wm.ai.controller;
 
 import com.alibaba.cloud.ai.dashscope.agent.DashScopeAgent;
 import com.alibaba.cloud.ai.dashscope.agent.DashScopeAgentOptions;
-import com.alibaba.cloud.ai.dashscope.api.DashScopeAgentApi;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,9 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * 调用阿里百炼平台 agent
  */
-@Api("ai-agent")
 @RestController
 @RequestMapping("/online")
+@Tag(name = "在线智能体调用")
 public class AgentOnlineController {
 
     @Autowired
