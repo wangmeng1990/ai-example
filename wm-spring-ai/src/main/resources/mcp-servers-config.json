@@ -7,7 +7,7 @@
                 "-Dsun.stdout.encoding=UTF-8",
                 "-Dsun.stderr.encoding=UTF-8",
                 "-jar",
-                "E:\\ai\\wm\\mcp-stdio-server\\target\\mcp-stdio-server-0.0.1-SNAPSHOT.jar"
+                "D:\\git-work\\ai-example\\mcp-stdio-server\\target\\mcp-stdio-server-0.0.1-SNAPSHOT.jar"
             ],
             "env": {}
         }
