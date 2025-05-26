@@ -1,19 +1,28 @@
 package com.wm.ai.service.impl;
 
-import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.reader.tika.TikaDocumentReader;
 import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.core.io.*;
+import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@AllArgsConstructor
 public class DocumentService {
+
+    private final ResourcePatternResolver resolver;
+
+    public DocumentService(ResourcePatternResolver resolver) {
+        this.resolver = resolver;
+    }
+
+    private boolean docLoaded=false;
 
     @SneakyThrows
     public List<Document> document1(MultipartFile file) {
@@ -58,5 +67,26 @@ public class DocumentService {
      */
     public List<Document> document4(String context) {
         return List.of(new Document(context));
+    }
+
+    public List<Document> document5()  {
+        List<Document> documents = new ArrayList<>();
+        if (docLoaded) {
+            return documents;
+        }
+        Resource[] resources = null;
+        try {
+            resources = resolver.getResources("classpath:doc/*.md");
+            docLoaded=true;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        if (null!=resources&&resources.length>0) {
+            for (Resource resource : resources) {
+                TikaDocumentReader tikaDocumentReader = new TikaDocumentReader(resource);
+                documents.addAll(tikaDocumentReader.read());
+            }
+        }
+        return documents;
     }
 }

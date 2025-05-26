@@ -19,8 +19,8 @@ import org.springframework.ai.chat.client.advisor.*;
 import org.springframework.ai.chat.memory.InMemoryChatMemory;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.document.Document;
 import org.springframework.ai.image.ImageModel;
-import org.springframework.ai.model.function.FunctionCallback;
 import org.springframework.ai.rag.preretrieval.query.expansion.MultiQueryExpander;
 import org.springframework.ai.rag.preretrieval.query.expansion.QueryExpander;
 import org.springframework.ai.rag.preretrieval.query.transformation.QueryTransformer;
@@ -28,17 +28,15 @@ import org.springframework.ai.rag.preretrieval.query.transformation.RewriteQuery
 import org.springframework.ai.rag.retrieval.search.DocumentRetriever;
 import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.tool.ToolCallbackProvider;
-import org.springframework.ai.tool.ToolCallbacks;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -143,9 +141,13 @@ public class ChatService {
     public Mono<String> chat6(ChatController.ChatRequest request) {
         //查找相似度阈值>=0.5（越大匹配越严格）的前 5 个记录
         //RAG Advisor
+        List<Document> documents = documentService.document5();
+        if(CollUtil.isNotEmpty(documents)){
+            vectorStore.add(documents);
+        }
         QuestionAnswerAdvisor questionAnswerAdvisor = new QuestionAnswerAdvisor(vectorStore,
             SearchRequest.builder().similarityThreshold(0.5d).topK(10).build());
-        return chatClient.prompt()
+        return chatClient.prompt().advisors(spec->spec.param("id","1"))
             .advisors(questionAnswerAdvisor)
             .user(request.userInput())
             .stream().content().collect(Collectors.joining())
