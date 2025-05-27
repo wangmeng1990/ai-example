@@ -60,5 +60,10 @@ public class DocumentController {
         return documentService.document4(context);
     }
 
+    @PostMapping("/document6")
+    public List<Document> document6(){
+        return documentService.document6();
+    }
+
     //TODO 自定义分割规则
 }
