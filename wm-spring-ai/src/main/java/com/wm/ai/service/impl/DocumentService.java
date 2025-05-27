@@ -2,7 +2,10 @@ package com.wm.ai.service.impl;
 
 import lombok.SneakyThrows;
 import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.document.ContentFormatter;
+import org.springframework.ai.document.DefaultContentFormatter;
 import org.springframework.ai.document.Document;
+import org.springframework.ai.document.MetadataMode;
 import org.springframework.ai.reader.tika.TikaDocumentReader;
 import org.springframework.ai.transformer.KeywordMetadataEnricher;
 import org.springframework.ai.transformer.SummaryMetadataEnricher;
@@ -108,16 +111,35 @@ public class DocumentService {
             throw new RuntimeException(e);
         }
         if (null!=resources&&resources.length>0) {
+            //分割
+            TokenTextSplitter tokenTextSplitter = new TokenTextSplitter(100,30,5,500,true);
             for (Resource resource : resources) {
                 TikaDocumentReader tikaDocumentReader = new TikaDocumentReader(resource);
-                documents.addAll(tikaDocumentReader.read());
+
+                List<Document> read = tikaDocumentReader.read();
+                List<Document> apply = tokenTextSplitter.apply(read);
+                documents.addAll(apply);
             }
+            //自定义元数据过滤规则
+            ContentFormatter contentFormatter= DefaultContentFormatter.builder()
+                    .withExcludedEmbedMetadataKeys("embedding")
+                    .build();
+            documents.forEach(document -> {
+                document.setContentFormatter(contentFormatter);
+            });
             //提取关键字
             KeywordMetadataEnricher keywordMetadataEnricher=new KeywordMetadataEnricher(chatModel,3);
             keywordMetadataEnricher.apply(documents);
 
             //提取摘要
-            SummaryMetadataEnricher summaryMetadataEnricher=new SummaryMetadataEnricher(chatModel,List.of(SummaryMetadataEnricher.SummaryType.CURRENT));
+            String DEFAULT_SUMMARY_EXTRACT_TEMPLATE = """
+			以下是内容:
+			{context_str}
+
+			总结以上内容的关键主题.
+
+			摘要:""";
+            SummaryMetadataEnricher summaryMetadataEnricher=new SummaryMetadataEnricher(chatModel,List.of(SummaryMetadataEnricher.SummaryType.CURRENT),DEFAULT_SUMMARY_EXTRACT_TEMPLATE, MetadataMode.EMBED);
             summaryMetadataEnricher.apply(documents);
         }
         return documents;
