@@ -92,4 +92,6 @@ logging:
       modelcontextprotocol:
         client: DEBUG
         spec: DEBUG
+# https://www.searchapi.io/  联网搜索apikey
+search-api-key: ${SEARCH-API-KEY}
 
