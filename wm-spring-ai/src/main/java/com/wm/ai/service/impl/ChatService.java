@@ -455,7 +455,7 @@ public class ChatService {
             .system(sysTxt)
             .user(request.userInput())
             .tools(new DocumentTools(documentService),webSearchTool)
-            //.tools(toolCallbackProvider)
+            .tools(toolCallbackProvider)
             .advisors(new MessageChatMemoryAdvisor(inMemoryChatMemory, request.sessionId(), 50))
             .stream().content().collect(Collectors.joining())
             .onErrorResume(e -> {
