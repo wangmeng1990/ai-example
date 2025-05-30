@@ -19,17 +19,21 @@ import org.springframework.ai.chat.client.advisor.*;
 import org.springframework.ai.chat.memory.InMemoryChatMemory;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.image.ImageModel;
+import org.springframework.ai.rag.generation.augmentation.ContextualQueryAugmenter;
 import org.springframework.ai.rag.preretrieval.query.expansion.MultiQueryExpander;
 import org.springframework.ai.rag.preretrieval.query.expansion.QueryExpander;
 import org.springframework.ai.rag.preretrieval.query.transformation.QueryTransformer;
 import org.springframework.ai.rag.preretrieval.query.transformation.RewriteQueryTransformer;
+import org.springframework.ai.rag.preretrieval.query.transformation.TranslationQueryTransformer;
 import org.springframework.ai.rag.retrieval.search.DocumentRetriever;
 import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -141,7 +145,7 @@ public class ChatService {
     public Mono<String> chat6(ChatController.ChatRequest request) {
         //查找相似度阈值>=0.5（越大匹配越严格）的前 5 个记录
         //RAG Advisor
-        List<Document> documents = documentService.document5();
+        List<Document> documents = documentService.document6();
         if(CollUtil.isNotEmpty(documents)){
             vectorStore.add(documents);
         }
@@ -322,11 +326,17 @@ public class ChatService {
      */
     public Mono<String> chat13(ChatController.ChatRequest request) {
 
-        //增强提示词:去干扰，语义增强等
+        //查询转换:去干扰，语义增强等
         QueryTransformer queryTransformer = RewriteQueryTransformer.builder()
             .chatClientBuilder(chatClient.mutate())
             .targetSearchSystem("vector store")
             .build();
+
+        //多语言支持
+        TranslationQueryTransformer translationQueryTransformer = TranslationQueryTransformer.builder()
+                .chatClientBuilder(chatClient.mutate())
+                .targetLanguage("英语")
+                .build();
 
         //提示词扩展:根据提问生成多版本提问
         QueryExpander queryExpander = MultiQueryExpander.builder()
@@ -339,6 +349,8 @@ public class ChatService {
             .vectorStore(vectorStore)
             .similarityThreshold(0.0)
             .topK(5)
+            //redisStack 的条件检索不支持或者有bug TODO
+            //.filterExpression(new FilterExpressionBuilder().eq("excerpt_keywords","八路军").build())
             .build();
 
 
@@ -346,11 +358,16 @@ public class ChatService {
         //2.执行QueryExpander 扩展提问：一个问题生成多种问法Query，旨在不失本意的前提下扩大检索范围
         //3.执行DocumentRetriever 进行相似度检索：为步骤2的每个Query生成检索结果
         //4.执行DocumentJoiner 合并所有Query的检索结果
-        //5.执行QueryAugmenter 汇总信息作为最后的提示词
+        //5.执行QueryAugmenter 上下文查询增强
         RetrievalAugmentationAdvisor retrievalAugmentationAdvisor =RetrievalAugmentationAdvisor.builder()
-            .queryTransformers(queryTransformer)
+            .queryTransformers(queryTransformer,translationQueryTransformer)
             .queryExpander(queryExpander)
             .documentRetriever(documentRetriever)
+            //知识库无法召回任何信息时，通过拒识进行自定义回答
+            .queryAugmenter(ContextualQueryAugmenter.builder()
+                    .allowEmptyContext(false)
+                    .emptyContextPromptTemplate(new PromptTemplate("需要输出：抱歉，请联系wm"))
+                    .build())
             .order(1)
             .build();
 
