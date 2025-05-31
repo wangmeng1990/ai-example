@@ -10,6 +10,7 @@ import com.wm.ai.controller.ChatController;
 import com.wm.ai.functioncall.CpuFunction;
 import com.wm.ai.functioncall.DocumentReaderFunction;
 import com.wm.ai.tools.DocumentTools;
+import com.wm.ai.tools.WebScrapingTool;
 import com.wm.ai.tools.WebSearchTool;
 import com.wm.ai.util.ClassUtil;
 import lombok.AllArgsConstructor;
@@ -449,12 +450,12 @@ public class ChatService {
                 当用户需要查询产品时，你只能提供工具返回的产品
                 当用户需要读取文件的内容时，请调用读取文件内容工具
                 
-                如果用户问题与你负责的功能不相关，你可以使用联网搜索工具获取回答
+                如果用户问题与你负责的功能不相关，你可以根据需要使用对应的工具获取回答
                 """;
         return chatClient.prompt()
             .system(sysTxt)
             .user(request.userInput())
-            .tools(new DocumentTools(documentService),webSearchTool)
+            .tools(new DocumentTools(documentService),webSearchTool,new WebScrapingTool())
             .tools(toolCallbackProvider)
             .advisors(new MessageChatMemoryAdvisor(inMemoryChatMemory, request.sessionId(), 50))
             .stream().content().collect(Collectors.joining())
