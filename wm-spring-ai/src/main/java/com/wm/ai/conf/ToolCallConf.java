@@ -1,0 +1,37 @@
+package com.wm.ai.conf;
+
+import org.springframework.ai.autoconfigure.chat.model.ToolCallingAutoConfiguration;
+import org.springframework.ai.tool.execution.ToolExecutionExceptionProcessor;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+/**
+ * 工具调用过程
+ *
+ * @see ToolCallingAutoConfiguration
+ * 可以自定义：ToolCallbackResolver，ToolExecutionExceptionProcessor，ToolCallingManager 来定制工具调用过程比如完善日志，追踪调用进度等
+ * ollama等 使用了以上方式
+ *
+ * 阿里DashScope是另一种实现：
+ * @see org.springframework.ai.chat.model.AbstractToolCallSupport#executeFunctions
+ */
+//@Configuration
+//@AutoConfigureBefore( value = {ToolCallingAutoConfiguration.class})
+public class ToolCallConf {
+
+    @Bean
+    ToolExecutionExceptionProcessor customToolExceptionProcessor() {
+        return exception -> {
+            if (exception.getCause() instanceof IllegalArgumentException) {
+                return "参数异常";
+
+            }else if(exception.getCause() instanceof RuntimeException){
+                return "服务器异常";
+
+            }
+            return "Error tool execution: " + exception.getMessage();
+        };
+    }
+
+}
