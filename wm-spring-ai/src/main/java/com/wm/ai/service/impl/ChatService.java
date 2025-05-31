@@ -43,6 +43,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -457,6 +458,7 @@ public class ChatService {
             .user(request.userInput())
             .tools(new DocumentTools(documentService),webSearchTool,new WebScrapingTool())
             .tools(toolCallbackProvider)
+            .toolContext(Map.of("userId",request.sessionId()))
             .advisors(new MessageChatMemoryAdvisor(inMemoryChatMemory, request.sessionId(), 50))
             .stream().content().collect(Collectors.joining())
             .onErrorResume(e -> {
