@@ -16,7 +16,7 @@ public class DocumentTools {
     @Tool(description = "读取文件内容")
     public String readDocument(@ToolParam(description = "文件路径",required = true) String path, ToolContext context) {
         //工具上下文可在应用程序端的工具调用链中传递信息，既减少了token数有保证了安全性
-        System.out.println("userId:"+context.getContext().get("userId"));
+        System.out.println("context:"+context);
         return documentService.document2(path).get(0).getText();
     }
 }

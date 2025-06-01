@@ -21,6 +21,7 @@ import org.springframework.ai.chat.client.advisor.*;
 import org.springframework.ai.chat.memory.InMemoryChatMemory;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.image.ImageModel;
@@ -32,7 +33,9 @@ import org.springframework.ai.rag.preretrieval.query.transformation.RewriteQuery
 import org.springframework.ai.rag.preretrieval.query.transformation.TranslationQueryTransformer;
 import org.springframework.ai.rag.retrieval.search.DocumentRetriever;
 import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
+import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbackProvider;
+import org.springframework.ai.tool.method.MethodToolCallback;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
@@ -458,7 +461,17 @@ public class ChatService {
             .user(request.userInput())
             .tools(new DocumentTools(documentService),webSearchTool,new WebScrapingTool())
             .tools(toolCallbackProvider)
-            .toolContext(Map.of("userId",request.sessionId()))
+            /**
+             * @see ToolCallback#call(String, ToolContext) 默认实现不支持toolContext
+             *
+             * @see  MethodToolCallback 重写了call，支持toolContext
+             *
+             * @see org.springframework.ai.mcp.SyncMcpToolCallback 不支持toolContext
+             *
+             * 一些第三方工具封装为SyncMcpToolCallback，不能设置toolContext,否则会抛异常，MethodToolCallback和SyncMcpToolCallback不能
+             * 一起使用有点不合理
+             */
+            //.toolContext(Map.of("userId",request.sessionId()))
             .advisors(new MessageChatMemoryAdvisor(inMemoryChatMemory, request.sessionId(), 50))
             .stream().content().collect(Collectors.joining())
             .onErrorResume(e -> {
