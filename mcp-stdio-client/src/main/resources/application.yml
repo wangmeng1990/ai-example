@@ -1,6 +1,6 @@
 spring:
   application:
-    name: mcp-client
+    name: mcp-stdio-client
   main:
     web-application-type: none
   ai:
@@ -8,9 +8,10 @@ spring:
       api-key: ${DASHSCOPE_APIKEY}
     mcp:
       client:
+        request-timeout: 60s
         stdio:
           servers-configuration: classpath:/mcp-servers-config.json
-          request-timeout: 60s
+
   mandatory-file-encoding: UTF-8
 
 

@@ -1,6 +1,6 @@
-package com.wm.ai.mcp.mapper;
+package com.wm.mcp.stdioserver.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.wm.ai.mcp.model.Product;
+import com.wm.mcp.stdioserver.model.Product;
 
 public interface ProductMapper extends BaseMapper<Product> {}

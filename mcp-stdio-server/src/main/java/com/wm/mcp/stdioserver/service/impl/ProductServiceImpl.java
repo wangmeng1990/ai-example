@@ -1,9 +1,9 @@
-package com.wm.ai.mcp.service.impl;
+package com.wm.mcp.stdioserver.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.wm.ai.mcp.mapper.ProductMapper;
-import com.wm.ai.mcp.model.Product;
-import com.wm.ai.mcp.service.ProductService;
+import com.wm.mcp.stdioserver.mapper.ProductMapper;
+import com.wm.mcp.stdioserver.model.Product;
+import com.wm.mcp.stdioserver.service.ProductService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

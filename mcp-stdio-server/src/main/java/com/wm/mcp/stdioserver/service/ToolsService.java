@@ -1,7 +1,7 @@
-package com.wm.ai.mcp.service;
+package com.wm.mcp.stdioserver.service;
 
 import cn.hutool.core.collection.CollUtil;
-import com.wm.ai.mcp.model.Product;
+import com.wm.mcp.stdioserver.model.Product;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,4 +1,4 @@
-package com.wm.ai.mcp.model.base;
+package com.wm.mcp.stdioserver.model.base;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;

@@ -1,7 +1,7 @@
-package com.wm.ai.mcp.service;
+package com.wm.mcp.stdioserver.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.wm.ai.mcp.model.Product;
+import com.wm.mcp.stdioserver.model.Product;
 
 public interface ProductService extends IService<Product> {
 

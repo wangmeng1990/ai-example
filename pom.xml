@@ -21,6 +21,7 @@
         <module>wm-spring-ai</module>
         <module>mcp-stdio-server</module>
         <module>mcp-stdio-client</module>
+        <module>mcp-sse-server</module>
         <module>ollama-ai</module>
     </modules>
 

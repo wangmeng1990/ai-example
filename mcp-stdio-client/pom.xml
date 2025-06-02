@@ -11,7 +11,6 @@
     </parent>
 
     <artifactId>mcp-stdio-client</artifactId>
-    <version>${revision}</version>
 
     <dependencies>
         <dependency>

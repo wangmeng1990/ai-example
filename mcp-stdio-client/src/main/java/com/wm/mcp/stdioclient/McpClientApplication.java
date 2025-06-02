@@ -1,4 +1,4 @@
-package com.wm.mcpclient;
+package com.wm.mcp.stdioclient;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.tool.ToolCallbackProvider;

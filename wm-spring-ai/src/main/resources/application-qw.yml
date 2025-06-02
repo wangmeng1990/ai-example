@@ -30,9 +30,14 @@ spring:
 
     mcp:
       client:
+        request-timeout: 30s
         stdio:
+          # json配置方式目前只支持STDIO
           servers-configuration: classpath:/mcp-servers-config.json
-          request-timeout: 30s
+#        sse:
+#          connections:
+#            mcp-sse-server:
+#              url: http://localhost:8003
 
   mandatory-file-encoding: UTF-8
 

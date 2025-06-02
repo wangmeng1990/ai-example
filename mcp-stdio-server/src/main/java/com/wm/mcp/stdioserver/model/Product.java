@@ -1,7 +1,7 @@
-package com.wm.ai.mcp.model;
+package com.wm.mcp.stdioserver.model;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.wm.ai.mcp.model.base.BaseModel;
+import com.wm.mcp.stdioserver.model.base.BaseModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
