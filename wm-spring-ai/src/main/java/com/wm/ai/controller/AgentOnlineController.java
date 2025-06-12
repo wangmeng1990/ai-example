@@ -35,7 +35,7 @@ public class AgentOnlineController {
     private DashScopeAgent dashScopeAgent;
 
     @Autowired
-    private ChatModel chatModel;
+    private ChatModel dashScopeChatModel;
 
 
     @Value("${spring.ai.dash-scope.api-key}")
@@ -60,7 +60,7 @@ public class AgentOnlineController {
     @GetMapping("/chat")
     public String chat(@RequestParam String userInput) {
 
-        ChatClient chatClient = ChatClient.builder(chatModel).build();
+        ChatClient chatClient = ChatClient.builder(dashScopeChatModel).build();
 
         DashScopeApi dashScopeApi=new DashScopeApi(appKey);
 

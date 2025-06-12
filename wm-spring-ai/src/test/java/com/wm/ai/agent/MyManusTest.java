@@ -14,6 +14,6 @@ class MyManusTest {
     @Test
     public void run() {
         String result = myManus.run("E:\\t.txt里面有一个任务，完成它");
-        System.out.println(result);
+        System.out.println("-------------------------->>>>>>>>>>"+result);
     }
 }
