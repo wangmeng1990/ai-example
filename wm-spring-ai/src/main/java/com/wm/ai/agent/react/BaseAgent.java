@@ -44,7 +44,7 @@ public abstract class BaseAgent {
 
            for (int i = 1; i < maxStep&&state!=AgentState.FINISHED; i++) {
                this.currentStep=i;
-               log.info("执行步骤 {}/{}", currentStep, maxStep);
+               log.info("执行步骤 {}", currentStep);
                String stepResult=step();
                results.add("step"+currentStep+":"+stepResult);
            }

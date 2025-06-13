@@ -28,11 +28,10 @@ public class MessageChatMemory implements ChatMemory {
     }
 
     @Override
-    public List<Message> get(String conversationId, int lastN) {
+    public List<Message> get(String conversationId) {
 
         List<ChatMessage> list = chatMessageService.lambdaQuery()
             .eq(ChatMessage::getSessionId, conversationId)
-            .last("limit " + lastN)
             .list();
         List<Message> messages = new ArrayList<>();
         list.forEach(x->{

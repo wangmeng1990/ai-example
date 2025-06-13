@@ -18,6 +18,7 @@ import org.springframework.ai.model.tool.ToolExecutionResult;
 import org.springframework.ai.tool.ToolCallback;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -33,13 +34,14 @@ public abstract class ToolCallAgent extends ReActAgent{
 
     private final ChatOptions chatOptions;
 
-    public ToolCallAgent(ToolCallback[] tools) {
+    public ToolCallAgent(ToolCallback[] tools,ToolCallingManager toolCallingManager) {
         super();
-        this.toolCallingManager=ToolCallingManager.builder().build();
+        this.toolCallingManager=toolCallingManager;
         this.availableTools = tools;
         //禁用DashScope的工具调用逻辑，自主实现工具调用逻辑
         this.chatOptions= DashScopeChatOptions.builder()
-                .withProxyToolCalls(true)
+                //.withProxyToolCalls(true)
+                .withInternalToolExecutionEnabled(false)
                 .build();
     }
 
@@ -53,7 +55,7 @@ public abstract class ToolCallAgent extends ReActAgent{
             Prompt prompt=new Prompt(messageList,this.chatOptions);
             ChatResponse chatResponse = getChatClient().prompt(prompt)
                     .system(getSystemPrompt())
-                    .tools(availableTools)
+                    .toolCallbacks(availableTools)
                     .call()
                     .chatResponse();
 

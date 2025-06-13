@@ -7,11 +7,11 @@ import com.alibaba.cloud.ai.dashscope.rag.DashScopeDocumentRetriever;
 import com.alibaba.cloud.ai.dashscope.rag.DashScopeDocumentRetrieverOptions;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.RetrievalAugmentationAdvisor;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
 import org.springframework.ai.rag.preretrieval.query.transformation.QueryTransformer;
 import org.springframework.ai.rag.preretrieval.query.transformation.RewriteQueryTransformer;
 import org.springframework.ai.rag.retrieval.search.DocumentRetriever;
@@ -45,7 +45,7 @@ public class AgentOnlineController {
     private final String appId="eee2a6ab210845bfbb5daba0e3caa061";
 
     @GetMapping("/agent")
-    public String agent(@RequestParam String userInput) {
+    public String agent(@RequestParam(name = "userInput") String userInput) {
 
         ChatResponse response = dashScopeAgent.call(new Prompt(userInput, DashScopeAgentOptions.builder().withAppId(appId).build()));
         AssistantMessage app_output = response.getResult().getOutput();
@@ -58,11 +58,15 @@ public class AgentOnlineController {
      * @return
      */
     @GetMapping("/chat")
-    public String chat(@RequestParam String userInput) {
+    public String chat(@RequestParam(name = "userInput") String userInput) {
 
         ChatClient chatClient = ChatClient.builder(dashScopeChatModel).build();
 
-        DashScopeApi dashScopeApi=new DashScopeApi(appKey);
+        //DashScopeApi dashScopeApi=new DashScopeApi(appKey);
+
+        DashScopeApi dashScopeApi = DashScopeApi.builder()
+                .apiKey(appKey)
+                .build();
 
         //文档检索：从在线知识库获取数据
         DocumentRetriever retriever = new DashScopeDocumentRetriever(dashScopeApi,

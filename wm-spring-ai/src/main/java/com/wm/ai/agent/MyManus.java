@@ -5,14 +5,17 @@ import com.wm.ai.agent.react.ToolCallAgent;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.model.tool.ToolCallingManager;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
 
 @Component
 public class MyManus extends ToolCallAgent {
 
-    public MyManus(ToolCallback[] agentTool, ChatModel dashScopeChatModel) {
-        super(agentTool);
+    public MyManus(ToolCallback[] agentTool, ChatModel dashScopeChatModel, ToolCallingManager toolCallingManager) {
+        super(agentTool,toolCallingManager);
         setName("MyManus");
 
         String SYSTEM_PROMPT = """  
@@ -32,6 +35,8 @@ public class MyManus extends ToolCallAgent {
         ChatClient chatClient = ChatClient.builder(dashScopeChatModel)
                 .defaultAdvisors(new SimpleLoggerAdvisor())
                 .defaultTools(new TerminateTool())
+                //spring AI 1.0.0 要求：工具方法有toolContext参数则必须需要传入toolContext
+                .defaultToolContext(Map.of("userId","1"))
                 .build();
         this.setChatClient(chatClient);
     }

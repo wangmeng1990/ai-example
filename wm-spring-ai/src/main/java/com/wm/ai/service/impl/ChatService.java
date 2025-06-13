@@ -18,13 +18,17 @@ import lombok.Data;
 import lombok.SneakyThrows;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.*;
-import org.springframework.ai.chat.memory.InMemoryChatMemory;
+import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
+import org.springframework.ai.chat.client.advisor.vectorstore.VectorStoreChatMemoryAdvisor;
+import org.springframework.ai.chat.memory.InMemoryChatMemoryRepository;
+import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.image.ImageModel;
+import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
 import org.springframework.ai.rag.generation.augmentation.ContextualQueryAugmenter;
 import org.springframework.ai.rag.preretrieval.query.expansion.MultiQueryExpander;
 import org.springframework.ai.rag.preretrieval.query.expansion.QueryExpander;
@@ -38,7 +42,6 @@ import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.tool.method.MethodToolCallback;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
-import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -58,7 +61,7 @@ import java.util.stream.Collectors;
 public class ChatService {
 
     private final ChatClient chatClient;
-    private final InMemoryChatMemory inMemoryChatMemory;
+    private final MessageWindowChatMemory messageWindowChatMemory;
     private final VectorStore vectorStore;
     private final ObjectMapper objectMapper;
     private final MessageChatMemory messageChatMemory;
@@ -104,33 +107,19 @@ public class ChatService {
      * 可以使用InMemoryChatMemory或自定义实现ChatMemory
      */
     public Flux<ServerSentEvent<String>> chat3(ChatController.ChatRequest request) {
+
+        MessageChatMemoryAdvisor messageChatMemoryAdvisor = MessageChatMemoryAdvisor.builder(messageWindowChatMemory)
+                .conversationId(request.sessionId())
+                .order(5)
+                .build();
         return chatClient.prompt(request.userInput())
-            .advisors(new MessageChatMemoryAdvisor(inMemoryChatMemory, request.sessionId(), 5))
+            .advisors(messageChatMemoryAdvisor)
             .stream().content().map(content -> ServerSentEvent.builder(content).event("userInput").build())
             //问题回答结速标识,以便前端消息展示处理
             .concatWithValues(ServerSentEvent.builder("[DONE]").event("finish").build())
             .onErrorResume(e -> Flux.just(ServerSentEvent.builder("Error: " + e.getMessage()).event("error").build()));
     }
 
-    /**
-     * 通过ChatResponse获取其他属性
-     * @param request
-     * @return
-     */
-    public Flux<ServerSentEvent<String>> chat4(ChatController.ChatRequest request) {
-        String userId = request.sessionId();
-        //被追问消息
-        UserMessage followMessage = new UserMessage(request.followMessage());
-        return chatClient.prompt()
-            .user(request.userInput())
-            .messages(CollUtil.newArrayList(followMessage))
-            .advisors(new MessageChatMemoryAdvisor(inMemoryChatMemory, userId, 10))
-            .stream().chatResponse()
-            .map(chatResponse -> ServerSentEvent.builder(chatResponse.getResult().getOutput().getText()).event("userInput").build())
-            //.map(response -> ServerSentEvent.builder(toJson(response)).event("userInput").build());
-            .concatWithValues(ServerSentEvent.builder("[DONE]").event("finish").build())
-            .onErrorResume(e -> Flux.just(ServerSentEvent.builder("Error: " + e.getMessage()).event("error").build()));
-    }
 
     /**
      * 返回指定类型实体
@@ -156,8 +145,9 @@ public class ChatService {
         if(CollUtil.isNotEmpty(documents)){
             vectorStore.add(documents);
         }
-        QuestionAnswerAdvisor questionAnswerAdvisor = new QuestionAnswerAdvisor(vectorStore,
-            SearchRequest.builder().similarityThreshold(0.5d).topK(10).build());
+        QuestionAnswerAdvisor questionAnswerAdvisor = QuestionAnswerAdvisor.builder(vectorStore)
+                .searchRequest(SearchRequest.builder().similarityThreshold(0.5d).topK(10).build())
+                .build();
         return chatClient.prompt().advisors(spec->spec.param("id","1"))
             .advisors(questionAnswerAdvisor)
             .user(request.userInput())
@@ -184,9 +174,10 @@ public class ChatService {
 			{long_term_memory}
 			---------------------
 			""";
-        //noinspection removal
-        VectorStoreChatMemoryAdvisor vectorStoreChatMemoryAdvisor = new VectorStoreChatMemoryAdvisor(vectorStore,request.sessionId()
-            ,100, systemTextAdvise);
+        VectorStoreChatMemoryAdvisor vectorStoreChatMemoryAdvisor =VectorStoreChatMemoryAdvisor.builder(vectorStore)
+                .conversationId(request.sessionId())
+                .defaultTopK(5)
+                .build();
         return chatClient.prompt()
             .advisors(vectorStoreChatMemoryAdvisor)
             .user(request.userInput())
@@ -203,7 +194,11 @@ public class ChatService {
      * @return
      */
     public Mono<String> chat8(ChatController.ChatRequest request) {
-        PromptChatMemoryAdvisor PromptChatMemoryAdvisor =new PromptChatMemoryAdvisor(inMemoryChatMemory,request.sessionId(),10, "[MEMORY]");
+
+        PromptChatMemoryAdvisor PromptChatMemoryAdvisor = org.springframework.ai.chat.client.advisor.PromptChatMemoryAdvisor.builder(messageWindowChatMemory)
+                .conversationId(request.sessionId())
+                .order(10)
+                .build();
         return chatClient.prompt()
             .advisors(PromptChatMemoryAdvisor)
             .user(request.userInput())
@@ -227,7 +222,8 @@ public class ChatService {
     public Mono<String> chat9(ChatController.ChatRequest request) {
         return chatClient.prompt()
             .user(request.userInput())
-            .functions(ClassUtil.getFunctions(DocumentReaderFunction.class, CpuFunction.class))
+            //升级1.0.0弃用
+            //.functions(ClassUtil.getFunctions(DocumentReaderFunction.class, CpuFunction.class))
             .stream().content().collect(Collectors.joining())
             .onErrorResume(e -> {
                 System.err.println("Error occurred during chat: " + e.getMessage());
@@ -242,8 +238,11 @@ public class ChatService {
      */
     public Mono<String> chat10(ChatController.ChatRequest request) {
 
-        MessageChatMemoryAdvisor messageChatMemoryAdvisor = new MessageChatMemoryAdvisor(messageChatMemory,
-            request.sessionId(), 10);
+
+        MessageChatMemoryAdvisor messageChatMemoryAdvisor=MessageChatMemoryAdvisor.builder(messageChatMemory)
+                .conversationId(request.sessionId())
+                .order(10)
+                .build();
 
         return chatClient.prompt()
             .user(request.userInput())
@@ -260,8 +259,10 @@ public class ChatService {
      * @return
      */
     public Mono<String> chat11(String sessionId, String userInput, MultipartFile file) {
-        MessageChatMemoryAdvisor messageChatMemoryAdvisor = new MessageChatMemoryAdvisor(messageChatMemory,
-            sessionId, 10);
+        MessageChatMemoryAdvisor messageChatMemoryAdvisor =MessageChatMemoryAdvisor.builder(messageChatMemory)
+                .conversationId(sessionId)
+                .order(10)
+                .build();
         String fileContext=getFileContext(file);
         return chatClient.prompt()
             //可以使用system或messages增强提问
@@ -391,8 +392,9 @@ public class ChatService {
 			---------------------
 			根据上下文和提供的历史信息，进行回复。如果上下文中没有答案，请通知用户您无法回答问题。
 			""";
+        PromptTemplate USER_TEXT_TEMPLATE = new PromptTemplate(USER_TEXT_ADVISE);
 
-        RetrievalRerankAdvisor retrievalRerankAdvisor= new RetrievalRerankAdvisor(vectorStore,rerankModel,searchRequest,USER_TEXT_ADVISE,0.0,true,2);
+        RetrievalRerankAdvisor retrievalRerankAdvisor= new RetrievalRerankAdvisor(vectorStore,rerankModel,searchRequest,USER_TEXT_TEMPLATE,0.0,2);
 
         return chatClient.prompt()
             .user(request.userInput())
@@ -425,11 +427,16 @@ public class ChatService {
                 
                 如果用户问题与你负责的功能不相关，请不要做出回答
                 """;
+
+        MessageChatMemoryAdvisor messageChatMemoryAdvisor = MessageChatMemoryAdvisor.builder(messageWindowChatMemory)
+                .conversationId(request.sessionId())
+                .order(50)
+                .build();
         return chatClient.prompt()
             .system(sysTxt)
             .user(request.userInput())
-            .tools(toolCallbackProvider)
-            .advisors(new MessageChatMemoryAdvisor(inMemoryChatMemory, request.sessionId(), 50))
+            .toolCallbacks(toolCallbackProvider)
+            .advisors(messageChatMemoryAdvisor)
             .stream().content().collect(Collectors.joining())
             .onErrorResume(e -> {
                 System.err.println("Error occurred during chat: " + e.getMessage());
@@ -456,11 +463,16 @@ public class ChatService {
                 
                 如果用户问题与你负责的功能不相关，你可以根据需要使用对应的工具获取回答
                 """;
+
+        MessageChatMemoryAdvisor messageChatMemoryAdvisor = MessageChatMemoryAdvisor.builder(messageWindowChatMemory)
+                .conversationId(request.sessionId())
+                .order(50)
+                .build();
         return chatClient.prompt()
             .system(sysTxt)
             .user(request.userInput())
             .tools(new DocumentTools(documentService),webSearchTool,new WebScrapingTool())
-            .tools(toolCallbackProvider)
+            .toolCallbacks(toolCallbackProvider)
             /**
              * @see ToolCallback#call(String, ToolContext) 默认实现不支持toolContext
              *
@@ -471,8 +483,8 @@ public class ChatService {
              * 一些第三方工具封装为SyncMcpToolCallback，不能设置toolContext,否则会抛异常，MethodToolCallback和SyncMcpToolCallback不能
              * 一起使用有点不合理
              */
-            //.toolContext(Map.of("userId",request.sessionId()))
-            .advisors(new MessageChatMemoryAdvisor(inMemoryChatMemory, request.sessionId(), 50))
+            .toolContext(Map.of("userId",request.sessionId()))
+            .advisors(messageChatMemoryAdvisor)
             .stream().content().collect(Collectors.joining())
             .onErrorResume(e -> {
                 System.err.println("Error occurred during chat: " + e.getMessage());

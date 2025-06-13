@@ -1,16 +1,11 @@
 package com.wm.ai.conf;
 
 import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatModel;
-import org.springframework.ai.autoconfigure.chat.model.ToolCallingAutoConfiguration;
-import org.springframework.ai.chat.messages.AssistantMessage;
-import org.springframework.ai.chat.model.AbstractToolCallSupport;
 import org.springframework.ai.chat.model.ChatResponse;
-import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.model.tool.autoconfigure.ToolCallingAutoConfiguration;
 import org.springframework.ai.tool.execution.ToolExecutionExceptionProcessor;
-import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 /**
  * 工具调用过程
@@ -26,8 +21,6 @@ import org.springframework.context.annotation.Configuration;
  * 阿里DashScope是另一种实现：
  * @see DashScopeChatModel#call(Prompt)
  * @see DashScopeChatModel#stream(Prompt)
- * @see AbstractToolCallSupport#handleToolCalls(Prompt, ChatResponse)
- * @see AbstractToolCallSupport#executeFunctions(AssistantMessage, ToolContext)
  */
 //@Configuration
 //@AutoConfigureBefore( value = {ToolCallingAutoConfiguration.class})

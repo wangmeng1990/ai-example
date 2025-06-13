@@ -33,10 +33,6 @@ public class ChatController {
         return chatService.chat3(request);
     }
 
-    @PostMapping(value = "/chat4", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<ServerSentEvent<String>> chat4(@RequestBody ChatRequest request) {
-        return chatService.chat4(request);
-    }
 
     /**
      * 返回自定义实体
