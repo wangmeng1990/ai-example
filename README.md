@@ -9,6 +9,10 @@ docker run -d --name redis-stack   -v redis-data:/data -p 6379:6379 -p 8011:8011
 ```
 mysql数据库执行ai-example\mcp-stdio-server\src\main\resources\dbscript下的脚本
 
+# 源码地址
+
+[GitHub使用game分支](https://github.com/wangmeng1990/ai-example/tree/game)
+
 # 项目配置修改
 1.到百炼平台申请api-key 
 [百炼平台](https://bailian.console.aliyun.com/)，
