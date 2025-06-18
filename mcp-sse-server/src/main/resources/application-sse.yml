@@ -1,8 +1,0 @@
-spring:
-  ai:
-    mcp:
-      server:
-        name: mcp-sse-server
-
-
-

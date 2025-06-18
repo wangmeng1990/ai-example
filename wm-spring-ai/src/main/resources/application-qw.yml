@@ -1,27 +1,10 @@
 spring:
   ai:
-#    openai:
-#      api-key: ${DASHSCOPE_APIKEY}
-#      base-url: https://dashscope.aliyuncs.com/compatible-mode
-#      chat:
-#        options:
-#          model: qwen-plus
     dash-scope:
       api-key: ${DASHSCOPE_APIKEY}
       chat:
         options:
           model: qwen-plus
-      embedding:
-        options:
-          model: text-embedding-v2
-      image:
-        options:
-          model: wanx-v1
-      rerank:
-        options:
-          model: gte-rerank
-          #          topN: 5
-      workspace-id: ${DASHSCOPE_WORKSPACEID}
 
 
     vectorstore:
@@ -34,20 +17,8 @@ spring:
         stdio:
           # json配置方式目前只支持STDIO
           servers-configuration: classpath:/mcp-servers-config.json
-#        sse:
-#          connections:
-#            mcp-sse-server:
-#              url: http://localhost:8003
 
   mandatory-file-encoding: UTF-8
-
-
-
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/base_ai?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&useSSL=false&allow
-    username: root
-    password: 123456
 
   data:
     redis:
@@ -64,26 +35,7 @@ spring:
           max-wait: -1ms
           max-idle: 10
           min-idle: 0
-  neo4j:
-    authentication:
-      username: neo4j
-      password: 12345678
-    uri: bolt://localhost:7687
 
-mybatis-plus:
-  mapper-locations: classpath*:/mapper/**/*Mapper.xml
-  typeHandlersPackage: com.nh.micro.ext.th
-  configuration:
-    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
-    # 开启mybatis驼峰式命名规则自动转换
-    map-underscore-to-camel-case: true
-  global-config:
-    banner: false
-    db-config:
-      # 全局逻辑删除配置
-      logic-delete-field: isDeleted
-      logic-delete-value: true
-      logic-not-delete-value: false
 #输入请求日志
 logging:
   level:
@@ -97,6 +49,5 @@ logging:
       modelcontextprotocol:
         client: DEBUG
         spec: DEBUG
-# https://www.searchapi.io/  联网搜索apikey
-search-api-key: ${SEARCH-API-KEY}
+
 

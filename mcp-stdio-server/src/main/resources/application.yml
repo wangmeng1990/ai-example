@@ -6,7 +6,7 @@ spring:
     mcp:
       server:
         stdio: true
-        name: mcp-date-server
+        name: mcp-product-server
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver

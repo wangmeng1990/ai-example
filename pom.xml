@@ -20,9 +20,6 @@
     <modules>
         <module>wm-spring-ai</module>
         <module>mcp-stdio-server</module>
-        <module>mcp-stdio-client</module>
-        <module>mcp-sse-server</module>
-        <module>ollama-ai</module>
     </modules>
 
     <dependencyManagement>
@@ -49,11 +46,6 @@
                 <scope>import</scope>
             </dependency>
 
-<!--            <dependency>-->
-<!--                <groupId>com.alibaba.cloud.ai</groupId>-->
-<!--                <artifactId>spring-ai-alibaba-starter</artifactId>-->
-<!--                <version>${spring-ai-alibaba.version}</version>-->
-<!--            </dependency>-->
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-spring-boot3-starter</artifactId>

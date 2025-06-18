@@ -20,19 +20,12 @@ public class VectorStoreController {
     @Autowired
     private VectorStoreService vectorStoreService;
 
-    @PostMapping("/store1")
-    public String store1(@RequestParam(name = "text") String text) {
-        return vectorStoreService.store1(text);
+    /**
+     * embedding 用户画像
+     * @return
+     */
+    @PostMapping("/store/user-portraits")
+    public String userPortraits() {
+        return vectorStoreService.userPortraits();
     }
-
-    @PostMapping("/store2")
-    public String store2(@RequestParam(name = "file") MultipartFile file){
-        return vectorStoreService.store2(file);
-    }
-
-    @PostMapping("/store3")
-    public List<Document> store3(@RequestParam(name = "userInput") String userInput){
-        return vectorStoreService.store3(userInput);
-    }
-
 }

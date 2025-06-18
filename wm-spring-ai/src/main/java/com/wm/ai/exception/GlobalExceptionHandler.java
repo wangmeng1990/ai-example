@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -56,12 +55,6 @@ public class GlobalExceptionHandler {
         return webResponse;
     }
 
-    @ExceptionHandler(BadSqlGrammarException.class )
-    public WebResponse badSqlGrammarException(HttpServletRequest request,HttpServletResponse response, BadSqlGrammarException e) {
-        response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-        log.error("GlobalExceptionHandler, requestURI: [{}], [系统出现数据库异常][sql执行异常]", request.getRequestURI(), e);
-        return WebResponse.failInternalException(e);
-    }
 
     @ExceptionHandler(Exception.class)
     public WebResponse internalServerErrorException(HttpServletRequest request,HttpServletResponse response, Exception e) {
