@@ -7,7 +7,7 @@ JDK17，springBoot 3.4.2，spring AI 1.0.0，spring AI alibaba 1.0.0.2，mysql 8
 ```java
 docker run -d --name redis-stack   -v redis-data:/data -p 6379:6379 -p 8011:8011 -e REDIS_ARGS="--requirepass 123456" redis/redis-stack:latest
 ```
-mysql数据库执行ai-example\wm-spring-ai\src\main\resources\dbscript下的脚本
+mysql数据库执行ai-example\mcp-stdio-server\src\main\resources\dbscript下的脚本
 
 # 项目配置修改
 1.到百炼平台申请api-key 
