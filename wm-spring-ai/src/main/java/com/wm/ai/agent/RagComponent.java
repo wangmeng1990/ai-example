@@ -17,6 +17,7 @@ import org.springframework.ai.rag.preretrieval.query.transformation.QueryTransfo
 import org.springframework.ai.rag.preretrieval.query.transformation.RewriteQueryTransformer;
 import org.springframework.ai.rag.retrieval.search.DocumentRetriever;
 import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
+import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
 import org.springframework.stereotype.Component;
@@ -62,7 +63,8 @@ public class RagComponent {
                 .vectorStore(vectorStore)
                 .similarityThreshold(0.3)
                 .topK(5)
-                .filterExpression(new FilterExpressionBuilder().eq("userId","1").build())
+                //redisStack 的条件检索不支持或者有bug TODO
+                //.filterExpression(new FilterExpressionBuilder().eq("userId","1").build())
                 .build();
 
 
@@ -80,13 +82,28 @@ public class RagComponent {
                 //知识库无法召回任何信息时，通过拒识进行自定义回答
                 .queryAugmenter(ContextualQueryAugmenter.builder()
                         .allowEmptyContext(false)
-                        .emptyContextPromptTemplate(new PromptTemplate("需要输出：抱歉，暂时无法找到符合您要求的商品"))
+                        .emptyContextPromptTemplate(new PromptTemplate("抱歉，暂时无法找到符合您要求的商品"))
                         .build())
                 .order(1)
                 .build();
     }
 
     public RetrievalRerankAdvisor buildRetrievalRerankAdvisor() {
-        return new RetrievalRerankAdvisor(vectorStore, rerankModel, 0.5);
+
+        //重排序
+        SearchRequest searchRequest = SearchRequest.builder()
+                .topK(5)
+                .build();
+
+        final String USER_TEXT_ADVISE = """
+			下面是上下文:
+			---------------------
+			{question_answer_context}
+			---------------------
+			根据上下文和提供的历史信息，进行回复。如果上下文中没有答案，请通知用户您无法回答问题。
+			""";
+        PromptTemplate USER_TEXT_TEMPLATE = new PromptTemplate(USER_TEXT_ADVISE);
+
+        return new RetrievalRerankAdvisor(vectorStore,rerankModel,searchRequest,USER_TEXT_TEMPLATE,0.5,2);
     }
 }
