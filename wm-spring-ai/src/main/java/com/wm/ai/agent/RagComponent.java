@@ -18,6 +18,7 @@ import org.springframework.ai.rag.preretrieval.query.transformation.RewriteQuery
 import org.springframework.ai.rag.retrieval.search.DocumentRetriever;
 import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -61,8 +62,7 @@ public class RagComponent {
                 .vectorStore(vectorStore)
                 .similarityThreshold(0.3)
                 .topK(5)
-                //redisStack 的条件检索不支持或者有bug TODO
-                //.filterExpression(new FilterExpressionBuilder().eq("excerpt_keywords","八路军").build())
+                .filterExpression(new FilterExpressionBuilder().eq("userId","1").build())
                 .build();
 
 

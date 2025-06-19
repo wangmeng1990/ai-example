@@ -34,3 +34,28 @@ mysql数据库执行ai-example\mcp-stdio-server\src\main\resources\dbscript下�
 8.执行com.wm.ai.controller.VectorStoreController.userPortraits接口，把用户画像embedding到redis-stack
 
 9.执行com.wm.ai.controller.ChatController 开启体验
+
+# 项目目录结构
+
+### mcp-stdio-server
+- 提供产品信息查询MCP STDIO 服务
+
+### wm-spring-ai
+- aent 包                             # 封装了rag+会话记忆+tools call 的chatClient
+- common 包                           # 接口通用响应实体
+  - conf 包                           # 配置会话记忆存储bean
+- controller 包
+  - ChatController                    # 提供sse和普通对话接口
+  - VectorStoreController             # 提供用户画像信息emdedding到向量数据库接口
+- exception 包                        # 通用异常处理
+
+# 对话流程
+1.ETL 
+
+embedding用户画像并添加元数据，生成概要和关键字,用于检索阶段的条件过滤
+
+2.rag
+
+用户输入问题后先经过QueryTransformer和QueryExpander处理，通过查询转化和查询扩写来增加检索的召回率和准确度
+然后使用DocumentRetriever把经过处理的用户提问和原始提问一起到向量数据库检索最匹配的top n,DocumentRetriever可以设置过滤条件，通过ETL阶段设置的元数据来过滤,基于top n再使用RetrievalRerankAdvisor进行精排
+得到更匹配的结果，然后把结果放到对话上下文交给LLM处理，LLM会结合上下文和工具调用的结果给出最终的回答输出给用户

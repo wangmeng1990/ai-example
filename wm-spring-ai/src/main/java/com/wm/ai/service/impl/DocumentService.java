@@ -53,7 +53,8 @@ public class DocumentService {
         以下是内容:
         {context_str}
 
-        总结以上内容的关键主题.
+        总结以上内容的关键主题，
+        尽量保持简短精确
 
         摘要:""";
         SummaryMetadataEnricher summaryMetadataEnricher=new SummaryMetadataEnricher(chatModel,List.of(SummaryMetadataEnricher.SummaryType.CURRENT),DEFAULT_SUMMARY_EXTRACT_TEMPLATE, MetadataMode.EMBED);
