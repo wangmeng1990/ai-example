@@ -66,10 +66,11 @@ public class GoodAgent  {
 
         // 初始化客户端
         MessageChatMemoryAdvisor messageChatMemoryAdvisor =ragComponent.buildMessageChatMemoryAdvisor();
+        //（效果不是很好）过多的处理反而产生干扰
         //RetrievalAugmentationAdvisor retrievalAugmentationAdvisor = ragComponent.buildRetrievalAugmentationAdvisor();
-        RetrievalRerankAdvisor retrievalRerankAdvisor = ragComponent.buildRetrievalRerankAdvisor();
-        QuestionAnswerAdvisor questionAnswerAdvisor = ragComponent.buildQuestionAnswerAdvisor();
 
+        QuestionAnswerAdvisor questionAnswerAdvisor = ragComponent.buildQuestionAnswerAdvisor();
+        RetrievalRerankAdvisor retrievalRerankAdvisor = ragComponent.buildRetrievalRerankAdvisor();
 
         this.chatClient= ChatClient.builder(dashScopeChatModel)
                 .defaultSystem(SYSTEM_PROMPT)
