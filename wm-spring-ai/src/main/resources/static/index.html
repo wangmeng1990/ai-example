@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatBI 智能购物助手</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            height: 90vh;
+            max-height: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            z-index: 2;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .chat-window {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f9f9f9;
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 15px;
+            max-width: 80%;
+        }
+
+        .message.user {
+            margin-left: auto;
+            flex-direction: row-reverse;
+        }
+        
+        .message.bot {
+            margin-right: auto;
+        }
+
+        .message-bubble {
+            padding: 12px 18px;
+            border-radius: 20px;
+            line-height: 1.6;
+            font-size: 16px;
+            word-wrap: break-word;
+        }
+        
+        .message.user .message-bubble {
+            background: #4facfe;
+            color: white;
+            border-top-right-radius: 5px;
+        }
+
+        .message.bot .message-bubble {
+            background: #e5e5ea;
+            color: #333;
+            border-top-left-radius: 5px;
+        }
+        
+        .message.bot.error .message-bubble {
+            background: #ffe0e0;
+            color: #dc3545;
+            border: 1px solid #dc3545;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .retry-button {
+            background: transparent;
+            border: 1px solid #dc3545;
+            color: #dc3545;
+            padding: 3px 10px;
+            margin-left: 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .retry-button:hover {
+            background: #dc3545;
+            color: white;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+        }
+        
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            margin: 0 2px;
+            background-color: #aaa;
+            border-radius: 50%;
+            display: inline-block;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes bounce {
+          0%, 80%, 100% { transform: scale(0); }
+          40% { transform: scale(1.0); }
+        }
+
+        .chat-input-area {
+            display: flex;
+            padding: 15px 20px;
+            border-top: 1px solid #e1e8ed;
+            background: white;
+        }
+        
+        #userInput {
+            flex-grow: 1;
+            border: 2px solid #e1e8ed;
+            border-radius: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-right: 15px;
+            transition: border-color 0.3s;
+        }
+        
+        #userInput:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
+        
+        #sendBtn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        #sendBtn:hover:not(:disabled) {
+            transform: scale(1.05);
+        }
+
+        #sendBtn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        #stopBtn {
+            background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        #stopBtn:hover {
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 0;
+            }
+            .container {
+                width: 100%;
+                height: 100vh;
+                max-height: 100vh;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🤖 智能购物助手</h1>
+        <p>您的AI购物顾问</p>
+    </div>
+
+    <div id="chatWindow" class="chat-window">
+        <!-- Messages will be appended here -->
+    </div>
+
+    <div class="chat-input-area">
+        <input type="text" id="userInput" placeholder="请输入您的问题...">
+        <button id="sendBtn">🚀 发送</button>
+        <button id="stopBtn" style="display: none;">⏹️ 停止</button>
+    </div>
+</div>
+
+<script>
+    const chatWindow = document.getElementById('chatWindow');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    let lastUserQuery = '';
+    let abortController = null;
+    
+    // Initial bot message
+    window.addEventListener('load', () => {
+        appendMessage('您好，我是您的智能购物助手！请问有什么可以帮您？例如：我想买一台笔记本电脑。', 'bot');
+        userInput.focus();
+    });
+
+    // Handles submitting a new query from the user input
+    async function handleUserSubmit() {
+        const input = userInput.value.trim();
+        if (!input) return;
+
+        lastUserQuery = input;
+        appendMessage(input, 'user');
+        userInput.value = '';
+        
+        await sendRequest(input);
+    }
+
+    // Handles retrying the last query
+    async function handleRetry() {
+        if (!lastUserQuery) return;
+        // The last user message is already in the chat.
+        await sendRequest(lastUserQuery);
+    }
+
+    // Core logic for sending request to the backend
+    async function sendRequest(query) {
+        setLoading(true);
+        let messageDiv; // Will hold the message element to allow removal on error
+        abortController = new AbortController();
+
+        try {
+            const response = await fetch('http://localhost:8001/ai/chat/chat_sseemitter', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userInput: query, sessionId: '1' }),
+                signal: abortController.signal
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => null);
+                const errorMessage = errorData ? (errorData.message || JSON.stringify(errorData)) : `HTTP error! status: ${response.status}`;
+                throw new Error(errorMessage);
+            }
+
+            // Create a new empty message bubble for the bot's streaming response
+            messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', 'bot');
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.classList.add('message-bubble');
+            messageDiv.appendChild(bubbleDiv);
+            chatWindow.appendChild(messageDiv);
+            
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+
+                buffer += decoder.decode(value, { stream: true });
+
+                // Process all complete SSE messages in the buffer
+                let boundary;
+                while ((boundary = buffer.indexOf('\n\n')) >= 0) {
+                    const messageBlock = buffer.slice(0, boundary);
+                    buffer = buffer.slice(boundary + 2);
+
+                    const lines = messageBlock.split('\n');
+                    const dataLines = [];
+                    let eventType = 'message'; // Default event type
+
+                    for (const line of lines) {
+                        if (line.startsWith('event:')) {
+                            eventType = line.substring(6).trim();
+                        } else if (line.startsWith('data:')) {
+                            let dataValue = line.substring(5);
+                            if (dataValue.startsWith(' ')) {
+                                dataValue = dataValue.substring(1);
+                            }
+                            dataLines.push(dataValue);
+                        }
+                    }
+
+                    const eventData = dataLines.join('\n');
+
+                    if (eventType === 'answer') {
+                        bubbleDiv.textContent += eventData;
+                        scrollToBottom();
+                    } else if (eventType === 'finish') {
+                        // The stream is done, we can just log it. The loop will end when the connection is closed.
+                        console.log('Received finish event.');
+                    } else if (eventType === 'error') {
+                        // Handle custom error event from the stream
+                        if (messageDiv) {
+                            messageDiv.remove();
+                        }
+                        showError(eventData || 'Stream error');
+                    }
+                }
+            }
+        } catch (error) {
+            if (messageDiv) {
+                messageDiv.remove();
+            }
+            if (error.name !== 'AbortError') {
+                showError(error.message || '查询失败，请检查网络连接或接口状态');
+            } else {
+                console.log('Request aborted by user.');
+                // Restore the aborted query for editing
+                const userMessages = chatWindow.querySelectorAll('.message.user');
+                if (userMessages.length > 0) {
+                    userMessages[userMessages.length - 1].remove();
+                }
+                userInput.value = lastUserQuery;
+                userInput.focus();
+            }
+        } finally {
+            abortController = null;
+            setLoading(false);
+        }
+    }
+
+    function appendMessage(text, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message', sender);
+
+        const bubbleDiv = document.createElement('div');
+        bubbleDiv.classList.add('message-bubble');
+        bubbleDiv.textContent = text;
+        
+        messageDiv.appendChild(bubbleDiv);
+        chatWindow.appendChild(messageDiv);
+        scrollToBottom();
+    }
+
+    function setLoading(loading) {
+        userInput.disabled = loading;
+        
+        let typingIndicator = document.getElementById('typingIndicator');
+        if (loading) {
+            sendBtn.style.display = 'none';
+            stopBtn.style.display = 'inline-block';
+
+            if (!typingIndicator) {
+                const indicatorDiv = document.createElement('div');
+                indicatorDiv.classList.add('message', 'bot');
+                indicatorDiv.id = 'typingIndicator';
+                indicatorDiv.innerHTML = `
+                    <div class="message-bubble">
+                        <div class="typing-indicator">
+                            <span></span><span></span><span></span>
+                        </div>
+                    </div>
+                `;
+                chatWindow.appendChild(indicatorDiv);
+                scrollToBottom();
+            }
+        } else {
+            sendBtn.style.display = 'inline-block';
+            stopBtn.style.display = 'none';
+
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+    }
+
+    function showError(error) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message', 'bot', 'error');
+
+        const bubbleDiv = document.createElement('div');
+        bubbleDiv.classList.add('message-bubble');
+
+        const errorText = document.createElement('span');
+        errorText.textContent = `❌ 出现错误: ${error}`;
+
+        const retryButton = document.createElement('button');
+        retryButton.innerHTML = '🔄 重试';
+        retryButton.className = 'retry-button';
+        retryButton.onclick = () => {
+            messageDiv.remove();
+            handleRetry();
+        };
+
+        bubbleDiv.appendChild(errorText);
+        bubbleDiv.appendChild(retryButton);
+        messageDiv.appendChild(bubbleDiv);
+        chatWindow.appendChild(messageDiv);
+        scrollToBottom();
+    }
+
+    function scrollToBottom() {
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    // Event listeners
+    sendBtn.addEventListener('click', handleUserSubmit);
+
+    stopBtn.addEventListener('click', () => {
+        if (abortController) {
+            abortController.abort();
+        }
+    });
+
+    userInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault(); // Prevents form submission or line break
+            handleUserSubmit();
+        }
+    });
+
+</script>
+</body>
+</html>

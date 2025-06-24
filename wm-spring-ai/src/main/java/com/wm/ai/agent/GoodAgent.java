@@ -114,11 +114,21 @@ public class GoodAgent  {
         doChat_stream(userInput)
                 .subscribe(content -> {
                     try {
-                        sseEmitter.send(content);
+                        sseEmitter.send(SseEmitter.event().name("answer").data(content));
                     } catch (IOException e) {
                         sseEmitter.completeWithError(e);
                     }
-                }, sseEmitter::completeWithError, sseEmitter::complete);
+                }, e -> {
+                    try {
+                        sseEmitter.send(SseEmitter.event().name("error").data("Error: " + e.getMessage()));
+                    } catch (IOException ignored) {}
+                    sseEmitter.completeWithError(e);
+                }, () -> {
+                    try {
+                        sseEmitter.send(SseEmitter.event().name("finish").data("[DONE]"));
+                    } catch (IOException ignored) {}
+                    sseEmitter.complete();
+                });
         return sseEmitter;
     }
 }
