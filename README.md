@@ -48,6 +48,7 @@ mysql数据库执行ai-example\mcp-stdio-server\src\main\resources\dbscript下�
   - ChatController                    # 提供sse和普通对话接口
   - VectorStoreController             # 提供用户画像信息emdedding到向量数据库接口
 - exception 包                        # 通用异常处理
+- resource/static/index.html          # 前端对话页面 -cursor生成
 
 # 对话流程
 1.ETL 
