@@ -1,6 +1,7 @@
 package com.wm.ai.agent;
 
 import com.alibaba.cloud.ai.advisor.RetrievalRerankAdvisor;
+import com.wm.ai.advisor.MyLoggerAdvisor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
@@ -74,7 +75,7 @@ public class GoodAgent  {
 
         this.chatClient= ChatClient.builder(dashScopeChatModel)
                 .defaultSystem(SYSTEM_PROMPT)
-                .defaultAdvisors(new SimpleLoggerAdvisor(), messageChatMemoryAdvisor,questionAnswerAdvisor,retrievalRerankAdvisor)
+                .defaultAdvisors(new MyLoggerAdvisor(), messageChatMemoryAdvisor,questionAnswerAdvisor,retrievalRerankAdvisor)
                 //.defaultAdvisors(new SimpleLoggerAdvisor(), messageChatMemoryAdvisor)
                 .defaultToolCallbacks(toolCallbackProvider)
                 //spring AI 1.0.0 要求：工具方法有toolContext参数则必须需要传入toolContext
