@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.prompt.PromptTemplate;
@@ -48,20 +49,20 @@ public class RagComponent {
 
         ChatClient.Builder chatClient = ChatClient.builder(dashScopeChatModel);
         //查询转换
-        QueryTransformer queryTransformer = RewriteQueryTransformer.builder()
-                .chatClientBuilder(chatClient)
-                .build();
+//        QueryTransformer queryTransformer = RewriteQueryTransformer.builder()
+//                .chatClientBuilder(chatClient)
+//                .build();
 
         //提示词扩展:根据提问生成多版本提问
-        QueryExpander queryExpander = MultiQueryExpander.builder()
-                .chatClientBuilder(chatClient)
-                .numberOfQueries(2)
-                .build();
+//        QueryExpander queryExpander = MultiQueryExpander.builder()
+//                .chatClientBuilder(chatClient)
+//                .numberOfQueries(2)
+//                .build();
 
         //向量数据库相似度检索
         DocumentRetriever documentRetriever = VectorStoreDocumentRetriever.builder()
                 .vectorStore(vectorStore)
-                .similarityThreshold(0.3)
+                .similarityThreshold(0.5)
                 .topK(5)
                 //redisStack 的条件检索不支持或者有bug TODO
                 //.filterExpression(new FilterExpressionBuilder().eq("userId","1").build())
@@ -76,8 +77,8 @@ public class RagComponent {
         //知识库无法召回任何信息时，通过拒识进行自定义回答
 
         return RetrievalAugmentationAdvisor.builder()
-                .queryTransformers(queryTransformer)
-                .queryExpander(queryExpander)
+                //.queryTransformers(queryTransformer)
+                //.queryExpander(queryExpander)
                 .documentRetriever(documentRetriever)
                 //知识库无法召回任何信息时，通过拒识进行自定义回答
                 .queryAugmenter(ContextualQueryAugmenter.builder()
@@ -92,7 +93,7 @@ public class RagComponent {
 
         //重排序
         SearchRequest searchRequest = SearchRequest.builder()
-                .topK(5)
+                .topK(3)
                 .build();
 
         final String USER_TEXT_ADVISE = """
@@ -105,5 +106,10 @@ public class RagComponent {
         PromptTemplate USER_TEXT_TEMPLATE = new PromptTemplate(USER_TEXT_ADVISE);
 
         return new RetrievalRerankAdvisor(vectorStore,rerankModel,searchRequest,USER_TEXT_TEMPLATE,0.5,2);
+    }
+
+    public QuestionAnswerAdvisor buildQuestionAnswerAdvisor() {
+
+        return new QuestionAnswerAdvisor(vectorStore);
     }
 }

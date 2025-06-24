@@ -1,0 +1,10 @@
+spring:
+  profiles:
+    active: dev
+    application:
+      name: nl2sql-caht
+
+server:
+  port: 8002
+  servlet:
+    context-path: /ai

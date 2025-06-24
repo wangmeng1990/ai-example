@@ -17,9 +17,9 @@ public class ToolsService {
     @Autowired
     private GoodService goodService;
 
-    @Tool(description = "获取产品信息")
-    public String getGoodInfo(@ToolParam(description = "产品名称",required = false) String productName,
-                             @ToolParam(description = "产品分类",required = false) String category) {
+    @Tool(description = "获取商品信息")
+    public String getGoodInfo(@ToolParam(description = "商品名称",required = false) String productName,
+                             @ToolParam(description = "商品分类",required = false) String category) {
 
 
         List<Good> list = goodService.lambdaQuery()
@@ -28,7 +28,7 @@ public class ToolsService {
                 .eq(StrUtil.isNotEmpty(category), Good::getCategory, category)
                 .list();
         if (CollUtil.isNotEmpty(list)){
-            return JSON.toJSONString(list);
+            return "商品列表:"+JSON.toJSONString(list);
         }
         return "暂无产品信息";
     }

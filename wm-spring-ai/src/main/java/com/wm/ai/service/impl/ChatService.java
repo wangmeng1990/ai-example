@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -26,5 +27,10 @@ public class ChatService {
     public Mono<String> chat_mono(ChatController.ChatRequest request) {
 
         return goodAgent.doChat_mono(request.userInput());
+    }
+
+    public SseEmitter chat_sseemiter(ChatController.ChatRequest request) {
+
+        return goodAgent.doChat_sseemiter(request.userInput());
     }
 }

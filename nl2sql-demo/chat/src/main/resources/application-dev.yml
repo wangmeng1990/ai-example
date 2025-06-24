@@ -1,0 +1,32 @@
+spring:
+  ai:
+    dash-scope:
+      api-key: ${DASHSCOPE_APIKEY}
+      chat:
+        options:
+          model: qwen-max
+
+
+    vectorstore:
+      analytic:
+        collectName: chatbi
+
+chatbi:
+  dbconfig:
+    url: jdbc:mysql://localhost:3306/nl2_sql?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&useSSL=false&allow
+    username: root
+    password: 123456
+    connectiontype: jdbc
+    dialecttype: mysql
+
+#输入请求日志
+logging:
+  level:
+    org:
+      springframework:
+        ai:
+          chat:
+            client:
+              advisor: DEBUG
+
+

@@ -32,7 +32,7 @@ public class DocumentService {
     public List<Document> loadUserPortraits() {
         Resource resource = resolver.getResource("classpath:rag/用户画像.md");
         //分割
-        TokenTextSplitter tokenTextSplitter = new TokenTextSplitter(100,20,5,500,true);
+        TokenTextSplitter tokenTextSplitter = new TokenTextSplitter(50,10,1,500,true);
         TikaDocumentReader tikaDocumentReader = new TikaDocumentReader(resource);
 
         List<Document> read = tikaDocumentReader.read();
