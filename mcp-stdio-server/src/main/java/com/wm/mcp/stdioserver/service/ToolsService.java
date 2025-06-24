@@ -28,7 +28,7 @@ public class ToolsService {
                 .eq(StrUtil.isNotEmpty(category), Good::getCategory, category)
                 .list();
         if (CollUtil.isNotEmpty(list)){
-            return "商品列表:"+JSON.toJSONString(list);
+            return "good_list:"+JSON.toJSONString(list);
         }
         return "暂无产品信息";
     }
