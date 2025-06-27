@@ -101,7 +101,7 @@ public class RagComponent {
 			---------------------
 			{question_answer_context}
 			---------------------
-			根据上下文和提供的历史信息，进行回复。如果上下文中没有答案，请通知用户您无法回答问题。
+			根据上下文和提供的历史信息，而不是先验知识，来回答用户问题
 			""";
         PromptTemplate USER_TEXT_TEMPLATE = new PromptTemplate(USER_TEXT_ADVISE);
 

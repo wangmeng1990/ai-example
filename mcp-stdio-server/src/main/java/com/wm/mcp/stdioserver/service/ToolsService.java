@@ -19,7 +19,7 @@ public class ToolsService {
 
     @Tool(description = "获取商品信息")
     public String getGoodInfo(@ToolParam(description = "商品名称",required = false) String productName,
-                             @ToolParam(description = "商品分类",required = false) String category) {
+                             @ToolParam(description = "商品分类：[服饰鞋包、数码、化妆品]",required = false) String category) {
 
 
         List<Good> list = goodService.lambdaQuery()
