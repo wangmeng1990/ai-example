@@ -57,6 +57,6 @@ embedding用户画像并添加元数据，生成概要和关键字,用于检索�
 
 2.rag
 
-先通过QuestionAnswerAdvisor基于用户提问检索向量数据库，得到最相近的top n条检索片段
+先通过QuestionAnswerAdvisor基于用户提问检索向量数据库，得到最相近的top k条检索片段
 再使用RetrievalRerankAdvisor进行精排得到更匹配的结果，
 然后把结果放到对话上下文交给LLM处理，LLM会结合上下文和工具调用的结果给出最终的回答输出给用户
